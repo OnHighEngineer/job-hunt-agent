@@ -1,0 +1,19 @@
+{
+  "roles": ["SDE1", "AI Engineer", "Applied AI", "Agentic AI", "ML Engineer"],
+  "max_experience_years": 1,
+  "locations": ["Bengaluru", "Remote India", "Europe", "United States"],
+  "salary_min_lpa": 9,
+  "salary_max_lpa": 16,
+  "internship_stipend_floor": 50000,
+  "max_posting_age_days": 3,
+  "blocklist": ["Scoutit"],
+  "fit_threshold": 60,
+  "daily_send_cap": 10,
+  "provider": "openai",
+  "model": null,
+  "monthly_spend_cap_usd": 5.0,
+  "resume_path": "resume.txt",
+  "tracker_path": "tracker.db",
+  "spend_log_path": "spend.json",
+  "linkedin_queue_path": "linkedin_queue.json"
+}
