@@ -29,6 +29,9 @@ auto-applies through captchas or sends LinkedIn messages behind your back.
    you send. There is deliberately no auto-send.
 8. **Hands off** with the direct apply link and your tailored resume when
    a captcha, login, or risky form appears.
+9. **Chats with you on Telegram** - handoff links and alerts arrive in
+   your chat, and your `approve` / `skip` replies drive the LinkedIn
+   queue and tracker. The channel layer is pluggable.
 
 ## What it never does
 
@@ -47,7 +50,7 @@ No dependencies beyond Python 3.10+ for the core and the tests.
 git clone https://github.com/OnHighEngineer/job-hunt-agent.git
 cd job-hunt-agent
 cp config.example.json config.json   # edit your rules
-python3 -m unittest discover -s tests # 69 tests, all offline
+python3 -m unittest discover -s tests # 96 tests, all offline
 ```
 
 Set your LLM key (any one provider):
@@ -87,6 +90,48 @@ reason, status, next step and owner. Statuses update themselves when
 replies arrive. `python3 -m jobhunter.cli status` for a summary,
 `export` for CSV you can open in any spreadsheet.
 
+## CLI
+
+```bash
+python3 -m jobhunter.cli scan       # fetch -> gate -> score -> track, alert on handoffs
+python3 -m jobhunter.cli replies    # flip tracker rows when recruiters answer
+python3 -m jobhunter.cli status     # tracker summary
+python3 -m jobhunter.cli export     # tracker to CSV
+python3 -m jobhunter.cli linkedin list|approve|done
+python3 -m jobhunter.cli channel poll   # apply approve/skip replies from Telegram
+python3 -m jobhunter.cli doctor     # check keys, resume, optional tools
+```
+
+`scan` reads sources from `rss_feeds` and `agent_reach_queries` in your
+config.
+
+## Telegram channel
+
+Telegram is the first channel: alerts and handoff links land in your
+chat, and your replies come back as decisions.
+
+Setup:
+
+1. Message `@BotFather` in Telegram, `/newbot`, copy the token.
+2. Message your new bot once, then open
+   `https://api.telegram.org/bot<token>/getUpdates` and note your
+   chat's `id`.
+3. Export both, nothing touches the repo:
+
+```bash
+export JOBHUNTER_TELEGRAM_BOT_TOKEN=...
+export JOBHUNTER_TELEGRAM_CHAT_ID=...
+```
+
+With those set, `scan` sends each handoff straight to your chat. Reply
+`approve <queue-id>` to approve a LinkedIn draft or `skip <company>` to
+skip a tracked company, then run `channel poll` to apply your replies.
+The channel never applies, emails, or messages anyone by itself.
+
+New channels implement the two-method `Channel` interface in
+`jobhunter/channels/base.py` (`send_alert`, `poll_decisions`). WhatsApp
+is the next candidate.
+
 ## Gmail setup
 
 Reading replies and sending approved mail uses the official Gmail API.
@@ -109,8 +154,15 @@ Issues and PRs welcome. Good first contributions:
 - New LLM adapters (implement `complete(prompt) -> str`)
 - Tracker exporters (Google Sheets, Notion)
 - Better reply-to-tracker matching
+- New channels (WhatsApp, others) behind the `Channel` interface
 
 Please keep the "never does" list intact - it is the point of the project.
+
+## CI
+
+GitHub Actions runs the full suite on Python 3.10, 3.11 and 3.12 for
+every pull request. The suite needs no keys and no network. Main is
+protected: changes land through reviewed pull requests.
 
 ## License
 

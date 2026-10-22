@@ -61,6 +61,9 @@ class HuntConfig:
     tracker_path: str = "tracker.db"
     spend_log_path: str = "spend.json"
     linkedin_queue_path: str = "linkedin_queue.json"
+    rss_feeds: List[str] = field(default_factory=list)
+    agent_reach_queries: List[str] = field(default_factory=list)
+    channel_state_path: str = "telegram_state.json"
 
     @classmethod
     def from_dict(cls, data: dict) -> "HuntConfig":

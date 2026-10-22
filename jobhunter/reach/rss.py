@@ -12,6 +12,23 @@ from ..models import JobPosting
 from .base import JobSource
 
 
+def _company_from_url(url: str) -> str:
+    """Best-effort company hint from a job URL.
+
+    Board URLs usually carry the company as the first path segment
+    (boards.greenhouse.io/acme/..., jobs.lever.co/acme/...). Falls back
+    to the second-level domain label.
+    """
+    host_path = url.split("://", 1)[-1]
+    parts = [p for p in host_path.split("/") if p]
+    if not parts:
+        return ""
+    if len(parts) > 1 and parts[1].lower() not in ("jobs", "job", "careers"):
+        return parts[1]
+    labels = parts[0].split(".")
+    return labels[-2] if len(labels) >= 2 else parts[0]
+
+
 
 def _parse_date(raw: str):
     """RFC 822 (RSS) or ISO 8601 (Atom) -> epoch seconds, else None."""
@@ -70,8 +87,9 @@ class RSSSource(JobSource):
                 if ts is not None:
                     days = max(0, int((self._now - ts) // 86400))
             if title and link:
+                company = _text(item, "company", "author") or _company_from_url(link)
                 postings.append(JobPosting(
-                    title=title, company=_text(item, "company", "author"),
+                    title=title, company=company,
                     url=link, source=self.name,
                     description=_text(item, "description", "summary", "content"),
                     posted_days_ago=days))
