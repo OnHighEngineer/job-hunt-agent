@@ -44,3 +44,40 @@ changelog: it records the reasoning so future sessions do not relitigate.
 - **Default config ships the owner's hunt rules** (0-1 yr roles, 3-day
   freshness, stipend floor, blocklist). Users replace them with their own.
   No employer or proprietary names appear anywhere in the repo.
+
+## 2026-10-22 (day 2)
+
+- **Telegram is the first chat channel; the channel interface is
+  pluggable.** Telegram bots are free and need only a token and a chat
+  id. Rejected for v1: WhatsApp (Meta business API, approved templates,
+  real setup burden), SMS (per-message cost through a provider),
+  Instagram DMs (heavily restricted by Meta). New channels implement the
+  two-method `Channel` interface (`send_alert`, `poll_decisions`).
+- **Bot token and chat id come from the environment only.** Same rule as
+  LLM keys: no secrets in the repo. Rejected: token in config.json
+  (one slip and it is committed).
+- **Decisions are plain-text replies: `approve <queue-id>`,
+  `skip <company>`.** Approve drives the LinkedIn draft queue; skip
+  flips the newest tracker row matching the company token. Rejected:
+  inline buttons with callback state (more moving parts than v1 needs,
+  and button callbacks die when the bot restarts), free-form replies
+  (unparseable).
+- **Polling with getUpdates and a persisted offset, no webhook.** The
+  agent runs on a laptop with no public URL. The offset lives in
+  `telegram_state.json` (gitignored) so restarts do not re-apply old
+  decisions. Rejected: webhooks (needs a public endpoint).
+- **The channel notifies and carries decisions; it never acts on its
+  own.** Same rule as the LinkedIn queue: applying, emailing and
+  messaging stay with the human. Rejected: letting a channel decision
+  trigger an apply or send directly (defeats the approval model).
+- **CI is GitHub Actions running the unittest suite on Python
+  3.10-3.12.** Zero installs, mirrors the local command. Rejected:
+  pytest in CI (the suite is stdlib unittest; nothing to install).
+- **Main is protected: changes land through reviewed pull requests.**
+  CODEOWNERS routes review to the owner; direct pushes are off. The
+  owner is the only one who merges.
+- **RSS company falls back to the job URL when the feed omits it.**
+  Board URLs usually carry the company as the first path segment;
+  otherwise the second-level domain is used. Rejected: leaving company
+  empty (reply matching and channel `skip` need a company token to find
+  the tracker row).
