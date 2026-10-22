@@ -1,0 +1,6 @@
+Manjunath S
+SDE at a YC-backed healthcare AI startup (1 year)
+- Built an LLM audit agent that checks medical codes against clinical charts
+- Shipped retrieval + eval harnesses in Python; 160+ tests
+- Earlier: AI internship, agentic tooling, prompt eval pipelines
+Skills: Python, LLM APIs, RAG, FastAPI, SQL, Docker
