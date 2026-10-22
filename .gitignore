@@ -1,0 +1,19 @@
+# secrets and local state - never commit these
+.env
+*.key
+config.local.json
+config.json
+tracker.db
+tracker.csv
+spend.json
+linkedin_queue.json
+handoffs.jsonl
+resume.txt
+
+# python
+__pycache__/
+*.pyc
+.venv/
+build/
+dist/
+*.egg-info/
